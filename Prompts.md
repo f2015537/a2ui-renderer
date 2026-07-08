@@ -48,3 +48,21 @@ A log of prompts given to Claude Code for this project, recorded before each com
 > - Add basic CSS (CSS modules or plain CSS file, your call) so it's not unstyled,
 >   but keep this pass functional over pretty — I'll polish styling later
 > Commit as "feat: implement core A2UIRenderer and component set"
+
+> yes
+
+> Add form state handling to Form.tsx and TextField.tsx.
+>
+> Requirements:
+> - Form maintains controlled state for all its child text-fields (a Record<fieldId, value>)
+> - TextField is a controlled input reading/writing that shared state via context or
+>   props drilling — pick whichever is cleaner given the current structure and explain
+>   your choice in a code comment
+> - Required-field validation on submit: if a required field is empty, show an inline
+>   error and don't fire onEvent
+> - On successful submit, call onEvent with type "form-submit", the form's submitAction,
+>   and the collected field values
+> - Add a small unit test in src/renderer/__tests__/Form.test.tsx covering: renders
+>   fields, blocks submit on missing required field, fires onEvent with correct
+>   payload on valid submit
+> Commit as "feat: add form state management and validation"

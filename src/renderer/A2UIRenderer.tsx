@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import type {
-  A2UIAction,
+  A2UIButton,
   A2UIComponent,
   A2UIEvent,
-  A2UIForm,
   A2UIPayload,
+  A2UITextField,
 } from '../types/a2ui'
 import { Button } from '../components/Button'
 import { Card } from '../components/Card'
@@ -22,55 +22,67 @@ export interface A2UIRendererProps {
   onEvent: (event: A2UIEvent) => void
 }
 
-/** Walks the tree and indexes every `form` by its submit action name. */
-function collectForms(
-  component: A2UIComponent,
-  byActionName: Map<string, A2UIForm>,
-): void {
-  if (component.type === 'form') {
-    byActionName.set(component.submitAction.name, component)
-    return
-  }
-  if (component.type === 'container' || component.type === 'card') {
-    for (const child of component.children) {
-      collectForms(child, byActionName)
-    }
+interface FormMeta {
+  /** Every `text-field` in the tree, keyed by `fieldId`, so forms can resolve their `fieldIds`. */
+  fieldsById: Map<string, A2UITextField>
+  /** Every `button` in the tree, keyed by `action.name`, so forms can borrow a matching button's label/variant. */
+  buttonsByActionName: Map<string, A2UIButton>
+  /** `fieldId`s claimed by some form; the renderer skips these when it encounters them as standalone siblings, since the form renders them itself. */
+  claimedFieldIds: Set<string>
+  /** `action.name`s claimed by some form's `submitAction`; skipped for the same reason. */
+  claimedActionNames: Set<string>
+}
+
+/** Walks the tree once to build the lookups `FormMeta` needs. */
+function collectFormMeta(component: A2UIComponent, meta: FormMeta): void {
+  switch (component.type) {
+    case 'text-field':
+      meta.fieldsById.set(component.fieldId, component)
+      return
+    case 'button':
+      meta.buttonsByActionName.set(component.action.name, component)
+      return
+    case 'form':
+      meta.claimedActionNames.add(component.submitAction.name)
+      for (const fieldId of component.fieldIds) {
+        meta.claimedFieldIds.add(fieldId)
+      }
+      return
+    case 'container':
+    case 'card':
+      for (const child of component.children) {
+        collectFormMeta(child, meta)
+      }
+      return
+    case 'text':
+      return
   }
 }
 
 /**
  * Recursively renders an `A2UIComponent` tree, dispatching each node to its
- * presentational counterpart in `src/components`. The renderer itself only
- * handles dispatch and the small amount of cross-component wiring the
- * schema requires: tracking field values by `fieldId`, and turning a
- * button press into a `form-submit` event (with collected values) when its
- * action matches a form's `submitAction`, or a plain `button-click`
- * otherwise.
+ * presentational counterpart in `src/components`. The renderer stays thin:
+ * its only job beyond dispatch is resolving each `form`'s `fieldIds` and
+ * `submitAction` to the actual sibling `text-field`/`button` components (via
+ * `FormMeta`) so `Form` can render and validate them directly, and owning
+ * controlled state for `text-field`s that aren't part of any form.
  */
 export function A2UIRenderer({ payload, onEvent }: A2UIRendererProps) {
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({})
 
-  const formsByActionName = useMemo(() => {
-    const map = new Map<string, A2UIForm>()
-    collectForms(payload.root, map)
-    return map
+  const formMeta = useMemo(() => {
+    const meta: FormMeta = {
+      fieldsById: new Map(),
+      buttonsByActionName: new Map(),
+      claimedFieldIds: new Set(),
+      claimedActionNames: new Set(),
+    }
+    collectFormMeta(payload.root, meta)
+    return meta
   }, [payload.root])
 
   const handleFieldChange = (fieldId: string, value: string) => {
     setFieldValues((prev) => ({ ...prev, [fieldId]: value }))
-  }
-
-  const handleButtonClick = (action: A2UIAction) => {
-    const form = formsByActionName.get(action.name)
-    if (form) {
-      const values: Record<string, string> = {}
-      for (const fieldId of form.fieldIds) {
-        values[fieldId] = fieldValues[fieldId] ?? ''
-      }
-      onEvent({ type: 'form-submit', action, fieldIds: form.fieldIds, values })
-      return
-    }
-    onEvent({ type: 'button-click', action })
   }
 
   const renderComponent = (
@@ -97,15 +109,23 @@ export function A2UIRenderer({ payload, onEvent }: A2UIRendererProps) {
       case 'text':
         return <Text key={key} content={component.content} />
       case 'button':
+        if (formMeta.claimedActionNames.has(component.action.name)) {
+          return null
+        }
         return (
           <Button
             key={key}
             label={component.label}
             variant={component.variant}
-            onClick={() => handleButtonClick(component.action)}
+            onClick={() =>
+              onEvent({ type: 'button-click', action: component.action })
+            }
           />
         )
       case 'text-field':
+        if (formMeta.claimedFieldIds.has(component.fieldId)) {
+          return null
+        }
         return (
           <TextField
             key={key}
@@ -116,8 +136,24 @@ export function A2UIRenderer({ payload, onEvent }: A2UIRendererProps) {
             onChange={(value) => handleFieldChange(component.fieldId, value)}
           />
         )
-      case 'form':
-        return <Form key={key} fieldIds={component.fieldIds} />
+      case 'form': {
+        const fields = component.fieldIds
+          .map((fieldId) => formMeta.fieldsById.get(fieldId))
+          .filter((field): field is A2UITextField => field !== undefined)
+        const matchingButton = formMeta.buttonsByActionName.get(
+          component.submitAction.name,
+        )
+        return (
+          <Form
+            key={key}
+            fields={fields}
+            submitAction={component.submitAction}
+            submitLabel={matchingButton?.label ?? 'Submit'}
+            submitVariant={matchingButton?.variant}
+            onEvent={onEvent}
+          />
+        )
+      }
     }
   }
 

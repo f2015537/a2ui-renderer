@@ -2,9 +2,11 @@ export interface TextFieldProps {
   label: string
   placeholder?: string
   required?: boolean
-  /** Current value, owned by `A2UIRenderer` and keyed there by `fieldId`. */
+  /** Current value; owned by whichever component renders this field directly (`Form`, for fields inside one, or `A2UIRenderer`, for standalone fields). */
   value: string
   onChange: (value: string) => void
+  /** Inline validation message to display below the field, if any. */
+  error?: string
 }
 
 /** Single-line text input for an `A2UITextField` component. */
@@ -14,6 +16,7 @@ export function TextField({
   required,
   value,
   onChange,
+  error,
 }: TextFieldProps) {
   return (
     <label className="a2ui-text-field">
@@ -33,7 +36,13 @@ export function TextField({
         required={required}
         value={value}
         onChange={(event) => onChange(event.target.value)}
+        aria-invalid={error ? true : undefined}
       />
+      {error ? (
+        <span className="a2ui-text-field__error" role="alert">
+          {error}
+        </span>
+      ) : null}
     </label>
   )
 }

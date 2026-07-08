@@ -74,3 +74,14 @@
   border-radius: 0.375rem;
   font-size: 0.9rem;
 }
+
+.a2ui-text-field__error {
+  color: #d93025;
+  font-size: 0.8rem;
+}
+
+.a2ui-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
