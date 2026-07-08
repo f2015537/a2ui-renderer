@@ -66,3 +66,23 @@ A log of prompts given to Claude Code for this project, recorded before each com
 >   fields, blocks submit on missing required field, fires onEvent with correct
 >   payload on valid submit
 > Commit as "feat: add form state management and validation"
+
+> yes
+
+> Build a demo app in src/demo/App.tsx: a minimal chat interface.
+>
+> Requirements:
+> - A text input where the "user" types a message and hits send
+> - A mock "agent" (src/demo/mockAgent.ts) that returns different A2UI payloads
+>   based on simple keyword matching in the message — implement at least 2 distinct
+>   scenarios, e.g.:
+>     1. message mentions "signup"/"register" -> returns a card with a form
+>        (name, email fields) and a submit button
+>     2. message mentions "confirm"/"book" -> returns a card with text + two buttons
+>        (confirm/cancel)
+> - Each agent response renders via A2UIRenderer in the chat thread
+> - Wire onEvent so form submits / button clicks post a follow-up "system" message
+>   into the thread showing what was received (simulating sending the interaction
+>   back to the agent)
+> - Keep chat history in App-level state, newest message at the bottom
+> Commit as "feat: add demo chatbot app with two mock agent payloads"
