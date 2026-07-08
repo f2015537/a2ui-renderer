@@ -149,3 +149,9 @@ A log of prompts given to Claude Code for this project, recorded before each com
 >   mock agent in the demo to occasionally return it
 > - Add tests for both new components covering the same cases as the others
 > Commit as "test: expand component test coverage; feat: add select and checkbox components"
+
+> the role field in preferences form is blending with the background - [screenshot showing
+> the Role select's text invisible against its white background, and the Team text-field
+> rendering with a dark background/light text, in a dark-mode browser]
+
+> yes, commit and push it
