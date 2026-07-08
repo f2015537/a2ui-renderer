@@ -43,7 +43,12 @@ interface AgentMessageProps {
  */
 function AgentMessage({ payload, streaming, onEvent }: AgentMessageProps) {
   const streamedPayload = useStreamedPayload(payload, { enabled: streaming })
-  return <A2UIRenderer payload={streamedPayload} onEvent={onEvent} />
+  return (
+    <A2UIRenderer
+      result={{ valid: true, payload: streamedPayload }}
+      onEvent={onEvent}
+    />
+  )
 }
 
 /**

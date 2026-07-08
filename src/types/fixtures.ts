@@ -101,3 +101,22 @@ export const dashboardFixture: A2UIPayload = {
     ],
   },
 }
+
+/**
+ * Intentionally malformed payload for exercising `validateA2UI` and
+ * `A2UIRenderer`'s fallback UI: an unknown component type, and a button
+ * missing its required `label`. Typed `unknown` (rather than
+ * `A2UIPayload`) since it deliberately doesn't conform to the schema.
+ */
+export const brokenPayloadFixture: unknown = {
+  id: 'fixture-broken',
+  version: '1.0',
+  root: {
+    type: 'container',
+    children: [
+      { type: 'text', content: 'Before the broken bits.' },
+      { type: 'not-a-real-type', foo: 'bar' },
+      { type: 'button', action: { name: 'doSomething' } },
+    ],
+  },
+}

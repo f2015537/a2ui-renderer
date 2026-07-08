@@ -102,3 +102,19 @@ A log of prompts given to Claude Code for this project, recorded before each com
 > - Make the interval configurable via a prop, default ~300ms per node
 > - Keep it toggleable in the demo UI (checkbox: "Simulate streaming")
 > Commit as "feat: add streaming simulation for progressive UI rendering"
+
+> yes
+
+> Add defensive handling for malformed A2UI payloads.
+>
+> Requirements:
+> - src/lib/validateA2UI.ts: a validation function that checks a parsed payload
+>   against the expected schema (unknown component types, missing required fields
+>   per type) and returns either { valid: true, payload } or { valid: false, errors }
+> - A2UIRenderer should accept the validation result and render a clear fallback
+>   UI (not a crash) listing what's wrong, when validation fails
+> - Add an ErrorBoundary around the renderer so a runtime error in one component
+>   doesn't take down the whole chat thread
+> - Add a fixture with an intentionally broken payload (unknown type, missing
+>   required field) and a test asserting the fallback renders instead of throwing
+> Commit as "feat: add payload validation and error boundaries"

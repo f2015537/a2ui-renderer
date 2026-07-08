@@ -4,20 +4,26 @@ import type {
   A2UIButton,
   A2UIComponent,
   A2UIEvent,
-  A2UIPayload,
   A2UITextField,
 } from '../types/a2ui'
+import type { A2UIValidationResult } from '../lib/validateA2UI'
 import { Button } from '../components/Button'
 import { Card } from '../components/Card'
 import { Container } from '../components/Container'
 import { Form } from '../components/Form'
 import { Text } from '../components/Text'
 import { TextField } from '../components/TextField'
+import { ErrorBoundary } from './ErrorBoundary'
+import { ValidationErrorFallback } from './ValidationErrorFallback'
 import './A2UIRenderer.css'
 
 export interface A2UIRendererProps {
-  /** The payload describing the component tree to render. */
-  payload: A2UIPayload
+  /**
+   * The result of validating an incoming payload with `validateA2UI`. When
+   * `valid` is false, the renderer shows `errors` instead of attempting to
+   * render anything.
+   */
+  result: A2UIValidationResult
   /** Called whenever an interactive component fires an event. */
   onEvent: (event: A2UIEvent) => void
 }
@@ -67,7 +73,7 @@ function collectFormMeta(component: A2UIComponent, meta: FormMeta): void {
  * `FormMeta`) so `Form` can render and validate them directly, and owning
  * controlled state for `text-field`s that aren't part of any form.
  */
-export function A2UIRenderer({ payload, onEvent }: A2UIRendererProps) {
+export function A2UIRenderer({ result, onEvent }: A2UIRendererProps) {
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({})
 
   const formMeta = useMemo(() => {
@@ -77,9 +83,11 @@ export function A2UIRenderer({ payload, onEvent }: A2UIRendererProps) {
       claimedFieldIds: new Set(),
       claimedActionNames: new Set(),
     }
-    collectFormMeta(payload.root, meta)
+    if (result.valid) {
+      collectFormMeta(result.payload.root, meta)
+    }
     return meta
-  }, [payload.root])
+  }, [result])
 
   const handleFieldChange = (fieldId: string, value: string) => {
     setFieldValues((prev) => ({ ...prev, [fieldId]: value }))
@@ -158,6 +166,22 @@ export function A2UIRenderer({ payload, onEvent }: A2UIRendererProps) {
   }
 
   return (
-    <div className="a2ui-renderer">{renderComponent(payload.root, 'root')}</div>
+    <ErrorBoundary
+      fallback={
+        <div className="a2ui-renderer">
+          <ValidationErrorFallback
+            errors={['An unexpected error occurred while rendering this UI.']}
+          />
+        </div>
+      }
+    >
+      <div className="a2ui-renderer">
+        {result.valid ? (
+          renderComponent(result.payload.root, 'root')
+        ) : (
+          <ValidationErrorFallback errors={result.errors} />
+        )}
+      </div>
+    </ErrorBoundary>
   )
 }
