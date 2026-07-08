@@ -22,7 +22,11 @@ function nextMessageId(): string {
 function describeEvent(event: A2UIEvent): string {
   if (event.type === 'form-submit') {
     const values = Object.entries(event.values)
-      .map(([fieldId, value]) => `${fieldId}: "${value}"`)
+      .map(([fieldId, value]) =>
+        typeof value === 'boolean'
+          ? `${fieldId}: ${value}`
+          : `${fieldId}: "${value}"`,
+      )
       .join(', ')
     return `Sent "${event.action.name}" to the agent with ${values || 'no values'}.`
   }

@@ -209,3 +209,21 @@ A log of prompts given to Claude Code for this project, recorded before each com
 > scenarios. I don't see the screenshots or gif embedded into the Readme either
 
 > include what happens when I click "Save preferences" in the streaming demo gif
+
+> Do a final review pass across the whole repo. Note: we intentionally did not
+> integrate a real Google A2UI example payload — this project implements a
+> simplified, custom schema inspired by A2UI, not the full spec. Don't flag that
+> as missing or broken, it's a deliberate scope decision.
+>
+> - Check for any `any` types and either fix or justify with a comment
+> - Make sure every component type from the requirements checklist is actually
+>   wired end-to-end (container, card, text, button, text-field, form, select,
+>   checkbox)
+> - Run the full test suite and fix any failures
+> - Check the commit history reads like a coherent build-up (squash/reword if any
+>   commit messages are vague)
+> - List anything from the requirements checklist that's still missing so I can
+>   decide whether to address it before submitting
+
+> include brief descriptions for every image in the Readme to make it more
+> readabable. Right now it looks like a bunch of images thorwn together

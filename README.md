@@ -51,24 +51,25 @@ Things to try:
 Any other message gets a generic fallback reply.
 
 ![Initial chat UI](docs/media/01-initial-chat.png)
+_The empty chat on load: a message input, the "Simulate streaming" toggle, and no messages yet._
 
 ![Signup form rendered by the agent](docs/media/02-signup-form.png)
+_A message containing "signup" renders a card with a form (Name + Email) and a Sign up button — a fresh, empty `A2UIForm`._
 
 ![Signup form filled in](docs/media/03-signup-form-filled.png)
-
-Submitting the form fires the `form-submit` callback, which the demo echoes
-back as a "system" message with the collected values:
+_The same form after filling in both fields, ready to submit._
 
 ![Signup form submitted, showing the system message echoing the collected values](docs/media/04-signup-submitted.png)
-
-The booking scenario's two buttons work the same way, firing a plain
-`button-click` callback each:
+_Clicking Sign up fires the `form-submit` event; the demo echoes the collected field values back as a "system" message, standing in for what a real agent would receive._
 
 ![Booking confirmation card with Confirm/Cancel buttons](docs/media/05-booking-confirm.png)
+_A message containing "confirm" or "book" renders a card with plain text and two buttons — no form involved this time._
 
 ![After clicking Confirm, showing the resulting system message](docs/media/06-booking-confirmed.png)
+_Clicking Confirm fires a plain `button-click` event (no field values to collect, just the action name)._
 
 ![A second booking card after clicking Cancel, showing its system message](docs/media/07-booking-cancelled.png)
+_A second, independent booking card — clicking Cancel instead reports its own action name the same way._
 
 ## Architecture
 
@@ -154,7 +155,8 @@ over the same discriminated union, the compiler flags it.
 
 ## Streaming simulation
 
-![Streaming reveal in the demo: the preferences form's fields arrive one at a time, then filling in and clicking "Save preferences" shows the resulting form-submit callback](docs/media/streaming-demo.gif)
+![Streaming reveal in the demo](docs/media/streaming-demo.gif)
+_With "Simulate streaming" on, the preferences form's fields (select, text-field, checkbox, button) arrive one at a time instead of all at once; filling it in and clicking "Save preferences" then shows the same form-submit callback as the signup screenshot above._
 
 `useStreamedPayload` walks the full payload tree and reveals one descendant
 node every `intervalMs` (default 300ms), in pre-order — a container or card

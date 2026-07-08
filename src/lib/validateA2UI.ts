@@ -216,5 +216,9 @@ export function validateA2UI(input: unknown): A2UIValidationResult {
     return { valid: false, errors }
   }
 
+  // Safe: every branch above that could leave `errors` non-empty has
+  // returned already, so `validateComponent`'s recursive walk (which covers
+  // every A2UIComponent variant via `assertUnreachable`) confirms `input`
+  // actually matches the schema at this point.
   return { valid: true, payload: input as unknown as A2UIPayload }
 }
