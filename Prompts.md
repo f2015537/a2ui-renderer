@@ -32,3 +32,19 @@ A log of prompts given to Claude Code for this project, recorded before each com
 > - Write 2-3 example payloads as const fixtures in src/types/fixtures.ts covering
 >   nested composition (a card containing a form containing text-fields and a button)
 > Commit as "feat: define A2UI schema types and fixtures"
+
+> yes, push it
+
+> Build the A2UIRenderer component in src/renderer/A2UIRenderer.tsx.
+>
+> Requirements:
+> - Props: `payload: A2UIPayload`, `onEvent: (event: A2UIEvent) => void`
+> - Recursively renders A2UIComponent trees using a switch/lookup on `type`
+> - Each of the 6 component types maps to a presentational component in
+>   src/components/ (Container.tsx, Card.tsx, Text.tsx, Button.tsx,
+>   TextField.tsx, Form.tsx) — keep the renderer itself thin, it just dispatches
+> - Define an `A2UIEvent` union type (button-click, form-submit) in src/types/a2ui.ts
+>   and pass it up via onEvent
+> - Add basic CSS (CSS modules or plain CSS file, your call) so it's not unstyled,
+>   but keep this pass functional over pretty — I'll polish styling later
+> Commit as "feat: implement core A2UIRenderer and component set"

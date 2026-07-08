@@ -91,6 +91,34 @@ export interface A2UIForm {
 export type A2UIComponent =
   A2UIContainer | A2UICard | A2UIText | A2UIButton | A2UITextField | A2UIForm
 
+/** Fired when a `button` component is pressed and is not wired to a form. */
+export interface A2UIButtonClickEvent {
+  type: 'button-click'
+  /** The action from the button that was pressed. */
+  action: A2UIAction
+}
+
+/**
+ * Fired when a `button` whose `action.name` matches a `form`'s
+ * `submitAction.name` is pressed. Carries the collected values for that
+ * form's fields.
+ */
+export interface A2UIFormSubmitEvent {
+  type: 'form-submit'
+  /** The form's submit action. */
+  action: A2UIAction
+  /** Ids of the fields the form collects, in the order the form declares. */
+  fieldIds: string[]
+  /** Current value of each field, keyed by `fieldId`. */
+  values: Record<string, string>
+}
+
+/**
+ * Discriminated union of every event an `A2UIRenderer` can emit back to its
+ * host via `onEvent`. Consumers should switch on `type` to narrow.
+ */
+export type A2UIEvent = A2UIButtonClickEvent | A2UIFormSubmitEvent
+
 /**
  * The top-level message sent from server to client describing a screen (or
  * screen fragment) to render.
