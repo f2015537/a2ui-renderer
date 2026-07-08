@@ -19,7 +19,7 @@ export function TextField({
   error,
 }: TextFieldProps) {
   return (
-    <label className="a2ui-text-field">
+    <label className="a2ui-text-field a2ui-enter">
       <span className="a2ui-text-field__label">
         {label}
         {required ? (

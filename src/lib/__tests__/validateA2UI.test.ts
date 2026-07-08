@@ -32,6 +32,27 @@ describe('validateA2UI', () => {
     }
   })
 
+  it('rejects a card with an invalid style value', () => {
+    const result = validateA2UI({
+      root: { type: 'card', style: 'sparkly', children: [] },
+    })
+    expect(result.valid).toBe(false)
+    if (!result.valid) {
+      expect(
+        result.errors.some((error) =>
+          error.includes('style: must be one of "elevated", "flat"'),
+        ),
+      ).toBe(true)
+    }
+  })
+
+  it('accepts a card with a valid style value', () => {
+    const result = validateA2UI({
+      root: { type: 'card', style: 'flat', children: [] },
+    })
+    expect(result.valid).toBe(true)
+  })
+
   it('rejects a non-object input', () => {
     const result = validateA2UI('not an object')
     expect(result).toEqual({

@@ -13,6 +13,9 @@ const COMPONENT_TYPES: readonly string[] = [
 /** Kept in sync with `A2UIButtonVariant` in `src/types/a2ui.ts`. */
 const BUTTON_VARIANTS: readonly string[] = ['primary', 'secondary', 'danger']
 
+/** Kept in sync with `A2UICardStyle` in `src/types/a2ui.ts`. */
+const CARD_STYLES: readonly string[] = ['elevated', 'flat']
+
 export interface A2UIValidationSuccess {
   valid: true
   payload: A2UIPayload
@@ -47,6 +50,20 @@ function validateAction(value: unknown, path: string, errors: string[]): void {
   }
 }
 
+function validateChildren(
+  value: Record<string, unknown>,
+  path: string,
+  errors: string[],
+): void {
+  if (!Array.isArray(value.children)) {
+    errors.push(`${path}.children: required array is missing`)
+    return
+  }
+  value.children.forEach((child, index) => {
+    validateComponent(child, `${path}.children[${index}]`, errors)
+  })
+}
+
 function validateComponent(
   value: unknown,
   path: string,
@@ -65,14 +82,19 @@ function validateComponent(
 
   switch (type) {
     case 'container':
+      validateChildren(value, path, errors)
+      break
+
     case 'card':
-      if (!Array.isArray(value.children)) {
-        errors.push(`${path}.children: required array is missing`)
-        break
+      if (
+        value.style !== undefined &&
+        !(isString(value.style) && CARD_STYLES.includes(value.style))
+      ) {
+        errors.push(
+          `${path}.style: must be one of ${CARD_STYLES.map((s) => `"${s}"`).join(', ')} when present`,
+        )
       }
-      value.children.forEach((child, index) => {
-        validateComponent(child, `${path}.children[${index}]`, errors)
-      })
+      validateChildren(value, path, errors)
       break
 
     case 'text':

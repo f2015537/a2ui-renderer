@@ -77,7 +77,7 @@ export function Form({
   }
 
   return (
-    <div className="a2ui-form">
+    <div className="a2ui-form a2ui-enter">
       {fields.map((field) => (
         <TextField
           key={field.fieldId}

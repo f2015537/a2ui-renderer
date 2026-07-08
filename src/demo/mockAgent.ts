@@ -60,6 +60,7 @@ export function getMockAgentResponse(message: string): A2UIPayload {
       version: '1.0',
       root: {
         type: 'card',
+        style: 'flat',
         children: [
           { type: 'text', content: 'Should I confirm this booking for you?' },
           {

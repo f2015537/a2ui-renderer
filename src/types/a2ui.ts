@@ -28,12 +28,17 @@ export interface A2UIContainer {
   children: A2UIComponent[]
 }
 
+/** Visual weight of a card's surface. */
+export type A2UICardStyle = 'elevated' | 'flat'
+
 /**
  * A visually distinct surface (e.g. border/elevation) that groups related
  * components, such as a form or a summary block.
  */
 export interface A2UICard {
   type: 'card'
+  /** Visual weight of the surface; renderers should treat a missing value as 'elevated'. */
+  style?: A2UICardStyle
   /** Child components to render inside this card. */
   children: A2UIComponent[]
 }

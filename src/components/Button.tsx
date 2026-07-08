@@ -12,7 +12,7 @@ export function Button({ label, variant = 'primary', onClick }: ButtonProps) {
   return (
     <button
       type="button"
-      className={`a2ui-button a2ui-button--${variant}`}
+      className={`a2ui-button a2ui-button--${variant} a2ui-enter`}
       onClick={onClick}
     >
       {label}

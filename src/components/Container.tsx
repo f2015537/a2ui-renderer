@@ -6,5 +6,5 @@ export interface ContainerProps {
 
 /** Generic layout wrapper for an `A2UIContainer` component's children. */
 export function Container({ children }: ContainerProps) {
-  return <div className="a2ui-container">{children}</div>
+  return <div className="a2ui-container a2ui-enter">{children}</div>
 }

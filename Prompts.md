@@ -118,3 +118,16 @@ A log of prompts given to Claude Code for this project, recorded before each com
 > - Add a fixture with an intentionally broken payload (unknown type, missing
 >   required field) and a test asserting the fallback renders instead of throwing
 > Commit as "feat: add payload validation and error boundaries"
+
+> yes
+
+> Polish styling and add component variants.
+>
+> Requirements:
+> - Button: support variant="primary" | "secondary" | "danger" with distinct styles
+> - Card: support an optional elevated/flat style prop
+> - Responsive layout for the demo chat (usable on mobile width)
+> - Loading/streaming state gets a subtle visual indicator (e.g. skeleton or fade-in)
+> - Don't introduce a UI library dependency — keep it hand-rolled CSS so the bundle
+>   stays small and the code stays reviewable
+> Commit as "style: polish component variants and responsive layout"

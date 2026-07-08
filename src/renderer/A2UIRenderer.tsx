@@ -108,7 +108,7 @@ export function A2UIRenderer({ result, onEvent }: A2UIRendererProps) {
         )
       case 'card':
         return (
-          <Card key={key}>
+          <Card key={key} style={component.style}>
             {component.children.map((child, index) =>
               renderComponent(child, index),
             )}
