@@ -4,13 +4,15 @@ import type {
   A2UIButton,
   A2UIComponent,
   A2UIEvent,
-  A2UITextField,
+  A2UIFormField,
 } from '../types/a2ui'
 import type { A2UIValidationResult } from '../lib/validateA2UI'
 import { Button } from '../components/Button'
 import { Card } from '../components/Card'
+import { Checkbox } from '../components/Checkbox'
 import { Container } from '../components/Container'
 import { Form } from '../components/Form'
+import { Select } from '../components/Select'
 import { Text } from '../components/Text'
 import { TextField } from '../components/TextField'
 import { ErrorBoundary } from './ErrorBoundary'
@@ -28,9 +30,11 @@ export interface A2UIRendererProps {
   onEvent: (event: A2UIEvent) => void
 }
 
+type FieldValue = string | boolean
+
 interface FormMeta {
-  /** Every `text-field` in the tree, keyed by `fieldId`, so forms can resolve their `fieldIds`. */
-  fieldsById: Map<string, A2UITextField>
+  /** Every field-capable component in the tree (`text-field`, `select`, `checkbox`), keyed by `fieldId`, so forms can resolve their `fieldIds`. */
+  fieldsById: Map<string, A2UIFormField>
   /** Every `button` in the tree, keyed by `action.name`, so forms can borrow a matching button's label/variant. */
   buttonsByActionName: Map<string, A2UIButton>
   /** `fieldId`s claimed by some form; the renderer skips these when it encounters them as standalone siblings, since the form renders them itself. */
@@ -43,6 +47,8 @@ interface FormMeta {
 function collectFormMeta(component: A2UIComponent, meta: FormMeta): void {
   switch (component.type) {
     case 'text-field':
+    case 'select':
+    case 'checkbox':
       meta.fieldsById.set(component.fieldId, component)
       return
     case 'button':
@@ -69,12 +75,12 @@ function collectFormMeta(component: A2UIComponent, meta: FormMeta): void {
  * Recursively renders an `A2UIComponent` tree, dispatching each node to its
  * presentational counterpart in `src/components`. The renderer stays thin:
  * its only job beyond dispatch is resolving each `form`'s `fieldIds` and
- * `submitAction` to the actual sibling `text-field`/`button` components (via
+ * `submitAction` to the actual sibling field/`button` components (via
  * `FormMeta`) so `Form` can render and validate them directly, and owning
- * controlled state for `text-field`s that aren't part of any form.
+ * controlled state for fields that aren't part of any form.
  */
 export function A2UIRenderer({ result, onEvent }: A2UIRendererProps) {
-  const [fieldValues, setFieldValues] = useState<Record<string, string>>({})
+  const [fieldValues, setFieldValues] = useState<Record<string, FieldValue>>({})
 
   const formMeta = useMemo(() => {
     const meta: FormMeta = {
@@ -89,7 +95,7 @@ export function A2UIRenderer({ result, onEvent }: A2UIRendererProps) {
     return meta
   }, [result])
 
-  const handleFieldChange = (fieldId: string, value: string) => {
+  const handleFieldChange = (fieldId: string, value: FieldValue) => {
     setFieldValues((prev) => ({ ...prev, [fieldId]: value }))
   }
 
@@ -140,14 +146,51 @@ export function A2UIRenderer({ result, onEvent }: A2UIRendererProps) {
             label={component.label}
             placeholder={component.placeholder}
             required={component.required}
-            value={fieldValues[component.fieldId] ?? ''}
+            value={
+              typeof fieldValues[component.fieldId] === 'string'
+                ? (fieldValues[component.fieldId] as string)
+                : ''
+            }
             onChange={(value) => handleFieldChange(component.fieldId, value)}
+          />
+        )
+      case 'select':
+        if (formMeta.claimedFieldIds.has(component.fieldId)) {
+          return null
+        }
+        return (
+          <Select
+            key={key}
+            label={component.label}
+            options={component.options}
+            required={component.required}
+            value={
+              typeof fieldValues[component.fieldId] === 'string'
+                ? (fieldValues[component.fieldId] as string)
+                : ''
+            }
+            onChange={(value) => handleFieldChange(component.fieldId, value)}
+          />
+        )
+      case 'checkbox':
+        if (formMeta.claimedFieldIds.has(component.fieldId)) {
+          return null
+        }
+        return (
+          <Checkbox
+            key={key}
+            label={component.label}
+            required={component.required}
+            checked={fieldValues[component.fieldId] === true}
+            onChange={(checked) =>
+              handleFieldChange(component.fieldId, checked)
+            }
           />
         )
       case 'form': {
         const fields = component.fieldIds
           .map((fieldId) => formMeta.fieldsById.get(fieldId))
-          .filter((field): field is A2UITextField => field !== undefined)
+          .filter((field): field is A2UIFormField => field !== undefined)
         const matchingButton = formMeta.buttonsByActionName.get(
           component.submitAction.name,
         )

@@ -131,3 +131,21 @@ A log of prompts given to Claude Code for this project, recorded before each com
 > - Don't introduce a UI library dependency — keep it hand-rolled CSS so the bundle
 >   stays small and the code stays reviewable
 > Commit as "style: polish component variants and responsive layout"
+
+> yes
+
+> Extend test coverage and add two more component types beyond the required 6.
+>
+> Requirements:
+> - Add unit tests for Container, Card, Text, Button, and TextField (rendering,
+>   props passed through correctly, Button firing onEvent on click) — currently
+>   only Form and the validation fallback are tested
+> - Add two new component types to the A2UI schema and renderer: "select" (dropdown
+>   with options, participates in form state the same way text-field does) and
+>   "checkbox" (boolean field, also participates in form state)
+> - Update src/types/a2ui.ts, the discriminated union, and add Select.tsx and
+>   Checkbox.tsx components following the existing pattern
+> - Add a fixture payload exercising both new types inside a form, and extend the
+>   mock agent in the demo to occasionally return it
+> - Add tests for both new components covering the same cases as the others
+> Commit as "test: expand component test coverage; feat: add select and checkbox components"

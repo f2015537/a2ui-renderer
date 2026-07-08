@@ -103,6 +103,56 @@ export const dashboardFixture: A2UIPayload = {
 }
 
 /**
+ * A card containing a form that exercises the `select` and `checkbox`
+ * field types alongside a `text-field`, demonstrating that all three
+ * participate in a form's collected values the same way.
+ */
+export const preferencesFormFixture: A2UIPayload = {
+  id: 'fixture-preferences-form',
+  version: '1.0',
+  root: {
+    type: 'card',
+    children: [
+      { type: 'text', content: 'Tell us about your preferences' },
+      {
+        type: 'form',
+        fieldIds: ['role', 'team', 'subscribe'],
+        submitAction: { name: 'submitPreferences' },
+      },
+      {
+        type: 'select',
+        fieldId: 'role',
+        label: 'Role',
+        options: [
+          { label: 'Engineer', value: 'engineer' },
+          { label: 'Designer', value: 'designer' },
+          { label: 'Product Manager', value: 'pm' },
+        ],
+        required: true,
+      },
+      {
+        type: 'text-field',
+        fieldId: 'team',
+        label: 'Team',
+        placeholder: 'Platform',
+        required: false,
+      },
+      {
+        type: 'checkbox',
+        fieldId: 'subscribe',
+        label: 'Subscribe to the newsletter',
+      },
+      {
+        type: 'button',
+        label: 'Save preferences',
+        action: { name: 'submitPreferences' },
+        variant: 'primary',
+      },
+    ],
+  },
+}
+
+/**
  * Intentionally malformed payload for exercising `validateA2UI` and
  * `A2UIRenderer`'s fallback UI: an unknown component type, and a button
  * missing its required `label`. Typed `unknown` (rather than

@@ -1,4 +1,5 @@
 import type { A2UIPayload } from '../types/a2ui'
+import { preferencesFormFixture } from '../types/fixtures'
 
 let responseCounter = 0
 
@@ -78,6 +79,10 @@ export function getMockAgentResponse(message: string): A2UIPayload {
         ],
       },
     }
+  }
+
+  if (text.includes('preferences') || text.includes('settings')) {
+    return { ...preferencesFormFixture, id: nextId('preferences') }
   }
 
   return {

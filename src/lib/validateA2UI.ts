@@ -7,6 +7,8 @@ const COMPONENT_TYPES: readonly string[] = [
   'text',
   'button',
   'text-field',
+  'select',
+  'checkbox',
   'form',
 ]
 
@@ -127,6 +129,45 @@ function validateComponent(
       }
       if (value.placeholder !== undefined && !isString(value.placeholder)) {
         errors.push(`${path}.placeholder: must be a string when present`)
+      }
+      if (value.required !== undefined && typeof value.required !== 'boolean') {
+        errors.push(`${path}.required: must be a boolean when present`)
+      }
+      break
+
+    case 'select':
+      if (!isString(value.label)) {
+        errors.push(`${path}.label: required string is missing`)
+      }
+      if (!isString(value.fieldId)) {
+        errors.push(`${path}.fieldId: required string is missing`)
+      }
+      if (!Array.isArray(value.options) || value.options.length === 0) {
+        errors.push(`${path}.options: required non-empty array is missing`)
+      } else {
+        value.options.forEach((option, index) => {
+          if (
+            !isRecord(option) ||
+            !isString(option.label) ||
+            !isString(option.value)
+          ) {
+            errors.push(
+              `${path}.options[${index}]: expected { label: string, value: string }`,
+            )
+          }
+        })
+      }
+      if (value.required !== undefined && typeof value.required !== 'boolean') {
+        errors.push(`${path}.required: must be a boolean when present`)
+      }
+      break
+
+    case 'checkbox':
+      if (!isString(value.label)) {
+        errors.push(`${path}.label: required string is missing`)
+      }
+      if (!isString(value.fieldId)) {
+        errors.push(`${path}.fieldId: required string is missing`)
       }
       if (value.required !== undefined && typeof value.required !== 'boolean') {
         errors.push(`${path}.required: must be a boolean when present`)

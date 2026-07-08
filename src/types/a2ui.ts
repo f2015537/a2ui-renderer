@@ -77,13 +77,51 @@ export interface A2UITextField {
   required?: boolean
 }
 
+/** A single choice offered by a `select` component. */
+export interface A2UISelectOption {
+  /** Text shown for this choice. */
+  label: string
+  /** Value recorded when this choice is selected. */
+  value: string
+}
+
+/** A dropdown for choosing one of a fixed set of string values. */
+export interface A2UISelect {
+  type: 'select'
+  /** Label displayed alongside the dropdown. */
+  label: string
+  /** Identifier used to associate this field's value with a form. */
+  fieldId: string
+  /** The choices offered. */
+  options: A2UISelectOption[]
+  /** Whether a choice must be made before its form can submit. */
+  required?: boolean
+}
+
+/** A single boolean toggle, e.g. for an "I agree to the terms" field. */
+export interface A2UICheckbox {
+  type: 'checkbox'
+  /** Label displayed alongside the checkbox. */
+  label: string
+  /** Identifier used to associate this field's value with a form. */
+  fieldId: string
+  /** Whether the checkbox must be checked before its form can submit. */
+  required?: boolean
+}
+
+/**
+ * Components that can participate in a `form`'s collected values (i.e.
+ * anything a `form`'s `fieldIds` can point at).
+ */
+export type A2UIFormField = A2UITextField | A2UISelect | A2UICheckbox
+
 /**
  * A form that groups a set of fields (referenced by id, not nested as
  * children) and submits their combined values via a single action.
  */
 export interface A2UIForm {
   type: 'form'
-  /** Ids of the `text-field` components whose values this form collects. */
+  /** Ids of the field components (`text-field`, `select`, `checkbox`) whose values this form collects. */
   fieldIds: string[]
   /** Action dispatched with the collected field values on submit. */
   submitAction: A2UIAction
@@ -94,7 +132,14 @@ export interface A2UIForm {
  * switch on `type` to narrow to the specific variant.
  */
 export type A2UIComponent =
-  A2UIContainer | A2UICard | A2UIText | A2UIButton | A2UITextField | A2UIForm
+  | A2UIContainer
+  | A2UICard
+  | A2UIText
+  | A2UIButton
+  | A2UITextField
+  | A2UISelect
+  | A2UICheckbox
+  | A2UIForm
 
 /** Fired when a `button` component is pressed and is not wired to a form. */
 export interface A2UIButtonClickEvent {
@@ -114,8 +159,8 @@ export interface A2UIFormSubmitEvent {
   action: A2UIAction
   /** Ids of the fields the form collects, in the order the form declares. */
   fieldIds: string[]
-  /** Current value of each field, keyed by `fieldId`. */
-  values: Record<string, string>
+  /** Current value of each field, keyed by `fieldId` (`checkbox` fields report a boolean, everything else a string). */
+  values: Record<string, string | boolean>
 }
 
 /**

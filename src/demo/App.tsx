@@ -95,7 +95,8 @@ export function DemoApp() {
     <div className="chat">
       <h1>a2ui-renderer demo</h1>
       <p className="chat__hint">
-        Try a message containing &quot;signup&quot; or &quot;book&quot;.
+        Try a message containing &quot;signup&quot;, &quot;book&quot;, or
+        &quot;preferences&quot;.
       </p>
       <label className="chat__streaming-toggle">
         <input
