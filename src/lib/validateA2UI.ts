@@ -1,7 +1,8 @@
-import type { A2UIPayload } from '../types/a2ui'
+import type { A2UIComponent, A2UIPayload } from '../types/a2ui'
+import { assertUnreachable } from './assertUnreachable'
 
 /** Component types the schema currently supports. */
-const COMPONENT_TYPES: readonly string[] = [
+const COMPONENT_TYPES: readonly A2UIComponent['type'][] = [
   'container',
   'card',
   'text',
@@ -11,6 +12,10 @@ const COMPONENT_TYPES: readonly string[] = [
   'checkbox',
   'form',
 ]
+
+function isComponentType(value: string): value is A2UIComponent['type'] {
+  return (COMPONENT_TYPES as readonly string[]).includes(value)
+}
 
 /** Kept in sync with `A2UIButtonVariant` in `src/types/a2ui.ts`. */
 const BUTTON_VARIANTS: readonly string[] = ['primary', 'secondary', 'danger']
@@ -77,7 +82,7 @@ function validateComponent(
   }
 
   const { type } = value
-  if (!isString(type) || !COMPONENT_TYPES.includes(type)) {
+  if (!isString(type) || !isComponentType(type)) {
     errors.push(`${path}.type: unknown component type ${JSON.stringify(type)}`)
     return
   }
@@ -180,6 +185,9 @@ function validateComponent(
       }
       validateAction(value.submitAction, `${path}.submitAction`, errors)
       break
+
+    default:
+      assertUnreachable(type)
   }
 }
 

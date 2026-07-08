@@ -7,6 +7,7 @@ import type {
   A2UIFormField,
 } from '../types/a2ui'
 import type { A2UIValidationResult } from '../lib/validateA2UI'
+import { assertUnreachable } from '../lib/assertUnreachable'
 import { Button } from '../components/Button'
 import { Card } from '../components/Card'
 import { Checkbox } from '../components/Checkbox'
@@ -68,6 +69,8 @@ function collectFormMeta(component: A2UIComponent, meta: FormMeta): void {
       return
     case 'text':
       return
+    default:
+      assertUnreachable(component)
   }
 }
 
@@ -205,6 +208,8 @@ export function A2UIRenderer({ result, onEvent }: A2UIRendererProps) {
           />
         )
       }
+      default:
+        return assertUnreachable(component)
     }
   }
 
