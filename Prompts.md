@@ -86,3 +86,19 @@ A log of prompts given to Claude Code for this project, recorded before each com
 >   back to the agent)
 > - Keep chat history in App-level state, newest message at the bottom
 > Commit as "feat: add demo chatbot app with two mock agent payloads"
+
+> yes
+
+> Add a streaming simulation mode to the demo: when the agent responds, reveal the
+> A2UI component tree progressively rather than all at once (e.g. render top-level
+> container immediately, then reveal each child on a short interval/timeout, like
+> components "arriving" one at a time).
+>
+> Requirements:
+> - Implement as a hook, src/renderer/useStreamedPayload.ts, that takes a full
+>   A2UIPayload and yields an incrementally-growing partial tree over time
+> - A2UIRenderer should accept the partial tree the same way it accepts a full one
+>   (no separate code path)
+> - Make the interval configurable via a prop, default ~300ms per node
+> - Keep it toggleable in the demo UI (checkbox: "Simulate streaming")
+> Commit as "feat: add streaming simulation for progressive UI rendering"

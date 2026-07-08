@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { A2UIRenderer } from '../renderer/A2UIRenderer'
+import { useStreamedPayload } from '../renderer/useStreamedPayload'
 import type { A2UIEvent, A2UIPayload } from '../types/a2ui'
 import { getMockAgentResponse } from './mockAgent'
 import './App.css'
 
 type ChatMessage =
   | { id: string; role: 'user'; text: string }
-  | { id: string; role: 'agent'; payload: A2UIPayload }
+  | { id: string; role: 'agent'; payload: A2UIPayload; streaming: boolean }
   | { id: string; role: 'system'; text: string }
 
 let messageCounter = 0
@@ -28,6 +29,23 @@ function describeEvent(event: A2UIEvent): string {
   return `Sent "${event.action.name}" to the agent.`
 }
 
+interface AgentMessageProps {
+  payload: A2UIPayload
+  streaming: boolean
+  onEvent: (event: A2UIEvent) => void
+}
+
+/**
+ * Wraps a single agent payload in `useStreamedPayload`. This has to be its
+ * own component (rather than calling the hook inline in a `.map`) so each
+ * message gets one consistent hook call tied to its own mount, regardless
+ * of how many other messages are in the thread.
+ */
+function AgentMessage({ payload, streaming, onEvent }: AgentMessageProps) {
+  const streamedPayload = useStreamedPayload(payload, { enabled: streaming })
+  return <A2UIRenderer payload={streamedPayload} onEvent={onEvent} />
+}
+
 /**
  * Minimal chat interface demonstrating `A2UIRenderer`: the user types a
  * message, a mock agent (`mockAgent.ts`) returns an `A2UIPayload` based on
@@ -39,6 +57,7 @@ function describeEvent(event: A2UIEvent): string {
 export function DemoApp() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [draft, setDraft] = useState('')
+  const [streamingEnabled, setStreamingEnabled] = useState(false)
 
   const appendMessage = (message: ChatMessage) => {
     setMessages((prev) => [...prev, message])
@@ -55,6 +74,7 @@ export function DemoApp() {
       id: nextMessageId(),
       role: 'agent',
       payload: getMockAgentResponse(text),
+      streaming: streamingEnabled,
     })
   }
 
@@ -72,6 +92,14 @@ export function DemoApp() {
       <p className="chat__hint">
         Try a message containing &quot;signup&quot; or &quot;book&quot;.
       </p>
+      <label className="chat__streaming-toggle">
+        <input
+          type="checkbox"
+          checked={streamingEnabled}
+          onChange={(event) => setStreamingEnabled(event.target.checked)}
+        />
+        Simulate streaming
+      </label>
       <div className="chat__thread">
         {messages.map((message) => {
           if (message.role === 'agent') {
@@ -80,8 +108,9 @@ export function DemoApp() {
                 key={message.id}
                 className="chat__message chat__message--agent"
               >
-                <A2UIRenderer
+                <AgentMessage
                   payload={message.payload}
+                  streaming={message.streaming}
                   onEvent={handleAgentEvent}
                 />
               </div>
